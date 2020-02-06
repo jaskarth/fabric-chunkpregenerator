@@ -1,16 +1,22 @@
-# Fabric Example Mod
 
-## Setup
+# About
 
-1. Edit build.gradle and mod.json to suit your needs.
-    * The "mixins" object can be removed from mod.json if you do not need to use mixins.
-    * Please replace all occurences of "modid" with your own mod ID - sometimes, a different string may also suffice.
-2. Run the following command:
+Fabric Chunk Pregenerator is a fabric mod that allows you to pregenerate chunks for your server or for singleplayer while running fabric. Requires Fabric API!
 
-```
-./gradlew idea
-```
+ 
 
-## License
+# Commands
 
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+`/pregen start <radius>` - Pregenerates in a square that is <radius> chunks long and wide. Only one pregeneration can run at a time.
+
+`/pregen stop` - Stops pregeneration and displays the amount completed.
+
+`/pregen status` - Displays the amount of chunks pregenerated.
+
+`/pregen help` - Displays a help message.
+
+ 
+
+## Discord Server
+
+https://discord.gg/BuBGds9
