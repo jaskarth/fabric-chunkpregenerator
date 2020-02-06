@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "chunkpregen",
+  "version": "0.1.0",
+
+  "name": "Fabric Chunk Pregenerator",
+  "description": "Pregen chunks with fabric!",
+  "authors": [
+    "SuperCoder79"
+  ],
+  "contact": {
+    "sources": ""
+  },
+
+  "license": "LGPLv3",
+  "icon": "assets/modid/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "supercoder79.chunkpregen.ChunkPregen"
+    ]
+  },
+  "mixins": [
+    "chunkpregen.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.2",
+    "fabric": "*",
+    "minecraft": ">=1.14-"
+  },
+  "suggests": {
+    "flamingo": "*"
+  }
+}
