@@ -34,8 +34,8 @@ public class Commands {
 
 					queue.clear();
 
-					for (int x = pos.x - radius / 2; x < pos.x + radius / 2; x++) {
-						for (int z = pos.z - radius / 2; z < pos.z + radius / 2; z++) {
+					for (int x = pos.x - radius; x < pos.x + radius; x++) {
+						for (int z = pos.z - radius; z < pos.z + radius; z++) {
 							queue.add(new ChunkPos(x, z));
 						}
 					}
@@ -118,7 +118,6 @@ public class Commands {
 
 		@Override
 		public void run() {
-			//				ChunkPos pos = new ChunkPos(source.getPlayer().getBlockPos());
 			ServerWorld world = source.getWorld();
 
 			while (shouldGenerate) {
