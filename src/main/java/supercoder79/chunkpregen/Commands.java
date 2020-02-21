@@ -39,7 +39,7 @@ public class Commands {
 							queue.add(new ChunkPos(x, z));
 						}
 					}
-					total = radius * radius;
+					total = radius * radius * 4;
 
 					execute(source);
 
