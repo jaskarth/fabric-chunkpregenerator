@@ -7,22 +7,29 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Commands {
 	private static int threadsDone = 0;
 	private static ConcurrentLinkedQueue<ChunkPos> queue = new ConcurrentLinkedQueue<>();
 	private static int total = 1;
 	private static boolean shouldGenerate = false;
+	private static ExecutorService executor;
 
 	public static void init() {
+        executor = Executors.newCachedThreadPool();
 		CommandRegistry.INSTANCE.register(false, dispatcher -> {
 			LiteralArgumentBuilder<ServerCommandSource> lab = CommandManager.literal("pregen")
 					.requires(executor -> executor.hasPermissionLevel(2));
 
-			lab.then(CommandManager.literal("start").then(CommandManager.argument("radius", IntegerArgumentType.integer(0)).executes(cmd -> {
+			lab.then(CommandManager.literal("start")
+					.then(CommandManager.argument("radius", IntegerArgumentType.integer(0))
+							.executes(cmd -> {
 				if (!shouldGenerate) {
 					shouldGenerate = true;
 
@@ -30,16 +37,18 @@ public class Commands {
 
 					int radius = IntegerArgumentType.getInteger(cmd, "radius");
 
-					ChunkPos pos = new ChunkPos(source.getPlayer().getBlockPos());
+					ChunkPos pos = new ChunkPos(new BlockPos(source.getPlayer().getPos()));
 
 					queue.clear();
+
+					total = 0;
 
 					for (int x = pos.x - radius; x < pos.x + radius; x++) {
 						for (int z = pos.z - radius; z < pos.z + radius; z++) {
 							queue.add(new ChunkPos(x, z));
+							total++;
 						}
 					}
-					total = radius * radius * 4;
 
 					execute(source);
 
@@ -50,7 +59,8 @@ public class Commands {
 				return 1;
 			})));
 
-			lab.then(CommandManager.literal("stop").executes(cmd -> {
+			lab.then(CommandManager.literal("stop")
+					.executes(cmd -> {
 				if (shouldGenerate) {
 					int amount = total-queue.size();
 					cmd.getSource().sendFeedback(new LiteralText("Pregen stopped! " + (amount) + " out of " + total + " generated. (" + (((double)(amount) / (double)(total))) * 100 + "%)"), true);
@@ -59,7 +69,8 @@ public class Commands {
 				return 1;
 			}));
 
-			lab.then(CommandManager.literal("status").executes(cmd -> {
+			lab.then(CommandManager.literal("status")
+					.executes(cmd -> {
 				if (shouldGenerate) {
 					int amount = total-queue.size();
 					cmd.getSource().sendFeedback(new LiteralText("Pregen status: " + (amount) + " out of " + total + " generated. (" + (((double)(amount) / (double)(total))) * 100 + "%)"), true);
@@ -69,7 +80,8 @@ public class Commands {
 				return 1;
 			}));
 
-			lab.then(CommandManager.literal("help").executes(cmd -> {
+			lab.then(CommandManager.literal("help").
+					executes(cmd -> {
 				ServerCommandSource source = cmd.getSource();
 
 				source.sendFeedback(new LiteralText("/pregen start <radius> - Pregenerate a square centered on the player that is <radius> chunks long and wide."), false);
@@ -81,15 +93,6 @@ public class Commands {
 
 			dispatcher.register(lab);
 		});
-	}
-
-	private static void execute(ServerCommandSource source) {
-		threadsDone = 0;
-
-		for (int i = 1; i < 5; i++) {
-			Thread thread = new Thread(new ChunkWorker(source));
-			thread.start();
-		}
 	}
 
 	private static void incrementAmount(ServerCommandSource source) {
@@ -108,6 +111,14 @@ public class Commands {
 			shouldGenerate = false;
 		}
 	}
+
+    private static void execute(ServerCommandSource source) {
+        threadsDone = 0;
+
+        for (int i = 0; i < 4; i++) {
+            executor.submit(new ChunkWorker(source));
+        }
+    }
 
 	static class ChunkWorker implements Runnable {
 		private ServerCommandSource source;
