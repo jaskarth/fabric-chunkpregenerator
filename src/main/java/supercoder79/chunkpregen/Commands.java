@@ -2,6 +2,7 @@ package supercoder79.chunkpregen;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.registry.CommandRegistry;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -23,7 +24,7 @@ public class Commands {
 
 	public static void init() {
         executor = Executors.newCachedThreadPool();
-		CommandRegistry.INSTANCE.register(false, dispatcher -> {
+		CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
 			LiteralArgumentBuilder<ServerCommandSource> lab = CommandManager.literal("pregen")
 					.requires(executor -> executor.hasPermissionLevel(2));
 
