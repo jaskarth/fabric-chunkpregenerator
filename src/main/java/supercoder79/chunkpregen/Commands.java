@@ -11,11 +11,13 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
+import java.text.DecimalFormat;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Commands {
+	private static DecimalFormat format = new DecimalFormat("#.00");
 	private static int threadsDone = 0;
 	private static ConcurrentLinkedQueue<ChunkPos> queue = new ConcurrentLinkedQueue<>();
 	private static int total = 1;
@@ -100,7 +102,7 @@ public class Commands {
 		int amount = total - queue.size();
 
 		if (amount % 100 == 0) {
-			source.sendFeedback(new LiteralText("Pregenerated " + (((double)(amount) / (double)(total))) * 100 + "%"), true);
+			source.sendFeedback(new LiteralText("Pregenerated " + (format.format(((double)(amount) / (double)(total)) * 100)) + "%"), true);
 		}
 	}
 
