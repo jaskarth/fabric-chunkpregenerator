@@ -40,7 +40,12 @@ public class Commands {
 
 					int radius = IntegerArgumentType.getInteger(cmd, "radius");
 
-					ChunkPos pos = new ChunkPos(new BlockPos(source.getPlayer().getPos()));
+					ChunkPos pos;
+					if (source.getEntity() == null) {
+						pos = new ChunkPos(0, 0);
+					} else {
+						pos = new ChunkPos(new BlockPos(source.getPlayer().getPos()));
+					}
 
 					queue.clear();
 
@@ -102,6 +107,7 @@ public class Commands {
 		int amount = total - queue.size();
 
 		if (amount % 100 == 0) {
+			System.gc();
 			source.sendFeedback(new LiteralText("Pregenerated " + (format.format(((double)(amount) / (double)(total)) * 100)) + "%"), true);
 		}
 	}
