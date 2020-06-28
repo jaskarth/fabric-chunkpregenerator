@@ -32,6 +32,7 @@ public class Commands {
 
 			lab.then(CommandManager.literal("start")
 					.then(CommandManager.argument("radius", IntegerArgumentType.integer(0))
+					.then(CommandManager.argument("first", IntegerArgumentType.integer(0))
 							.executes(cmd -> {
 				if (!shouldGenerate) {
 					shouldGenerate = true;
@@ -39,6 +40,7 @@ public class Commands {
 					ServerCommandSource source = cmd.getSource();
 
 					int radius = IntegerArgumentType.getInteger(cmd, "radius");
+					int first = IntegerArgumentType.getInteger(cmd, "first");
 
 					ChunkPos pos;
 					if (source.getEntity() == null) {
@@ -50,11 +52,14 @@ public class Commands {
 					queue.clear();
 
 					total = 0;
-
-					for (int x = pos.x - radius; x < pos.x + radius; x++) {
-						for (int z = pos.z - radius; z < pos.z + radius; z++) {
-							queue.add(new ChunkPos(x, z));
-							total++;
+					// concentric squares. start in the middle or at "first" ring
+					for (int ring = first; ring < radius; ring++) {
+						for (int v = -ring; v <= ring; v++;) {
+							queue.add(new ChunkPos(pos.x+ring,pox.z+v))
+							queue.add(new ChunkPos(pos.x-ring,pox.z+v))
+							queue.add(new ChunkPos(pos.x+v,pox.z+ring))
+							queue.add(new ChunkPos(pos.x+v,pox.z-ring))
+							total+=4;
 						}
 					}
 
