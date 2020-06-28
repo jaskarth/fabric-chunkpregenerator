@@ -81,7 +81,7 @@ public class Commands {
 					int amount = total-queue.size();
 					int ring = (int)Math.floor(total/8.0f);
 					cmd.getSource().sendFeedback(new LiteralText("Pregen stopped! " + (amount) + " out of " + total + " generated. (" + (((double)(amount) / (double)(total))) * 100 + "%)"), true);
-					cmd.getSource().sendFeedback(new LiteralText("Last completed radius: " + (ring)"), true);
+					cmd.getSource().sendFeedback(new LiteralText("Last completed radius: " + (ring)), true);
 				}
 				shouldGenerate = false;
 				return 1;
@@ -93,7 +93,7 @@ public class Commands {
 					int amount = total-queue.size();
 					int ring = (int)Math.floor(total/8.0f);
 					cmd.getSource().sendFeedback(new LiteralText("Pregen status: " + (amount) + " out of " + total + " generated. (" + (((double)(amount) / (double)(total))) * 100 + "%)"), true);
-					cmd.getSource().sendFeedback(new LiteralText("Last completed radius: " + (ring)"), true);
+					cmd.getSource().sendFeedback(new LiteralText("Last completed radius: " + (ring)), true);
 				} else {
 					cmd.getSource().sendFeedback(new LiteralText("No pregeneration currently running. Run /pregen start <radius> to start."), false);
 				}
