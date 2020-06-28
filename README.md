@@ -7,7 +7,7 @@ Fabric Chunk Pregenerator is a fabric mod that allows you to pregenerate chunks 
 
 # Commands
 
-`/pregen start <radius> <start_at>` - Pregenerates in a square that is <radius> chunks away from player in each direction starting from <start_at> chunks away. 
+`/pregen start <radius> <first>` - Pregenerates in a square that is <radius> chunks away from player in each direction starting from <first> chunks away. 
   - Only one pregeneration can run at a time.
 
 `/pregen stop` - Stops pregeneration and displays the amount completed.
