@@ -52,16 +52,19 @@ public class Commands {
 					queue.clear();
 
 					total = 0;
+					// use a Set to prevent duplicating corners...not sure if this is faster than just leaving them in queue
+					Set<ChunkPos> chunks = new HashSet<>();
 					// concentric squares. start in the middle or at "first" ring
 					for (int ring = first; ring < radius; ring++) {
 						for (int v = -ring; v <= ring; v++;) {
-							queue.add(new ChunkPos(pos.x+ring,pox.z+v))
-							queue.add(new ChunkPos(pos.x-ring,pox.z+v))
-							queue.add(new ChunkPos(pos.x+v,pox.z+ring))
-							queue.add(new ChunkPos(pos.x+v,pox.z-ring))
-							total+=4;
+							chunks.add(new ChunkPos(pos.x+ring,pox.z+v))
+							chunks.add(new ChunkPos(pos.x-ring,pox.z+v))
+							chunks.add(new ChunkPos(pos.x+v,pox.z+ring))
+							chunks.add(new ChunkPos(pos.x+v,pox.z-ring))
 						}
 					}
+					total = chunks.size(); // why count as they add when you can just count it all at the end
+					queue.addAll(chunks); // queue up the set
 
 					execute(source);
 
@@ -76,7 +79,9 @@ public class Commands {
 					.executes(cmd -> {
 				if (shouldGenerate) {
 					int amount = total-queue.size();
+					int ring = (int)Math.floor(total/8.0f);
 					cmd.getSource().sendFeedback(new LiteralText("Pregen stopped! " + (amount) + " out of " + total + " generated. (" + (((double)(amount) / (double)(total))) * 100 + "%)"), true);
+					cmd.getSource().sendFeedback(new LiteralText("Last completed radius: " + (ring)"), true);
 				}
 				shouldGenerate = false;
 				return 1;
@@ -86,7 +91,9 @@ public class Commands {
 					.executes(cmd -> {
 				if (shouldGenerate) {
 					int amount = total-queue.size();
+					int ring = (int)Math.floor(total/8.0f);
 					cmd.getSource().sendFeedback(new LiteralText("Pregen status: " + (amount) + " out of " + total + " generated. (" + (((double)(amount) / (double)(total))) * 100 + "%)"), true);
+					cmd.getSource().sendFeedback(new LiteralText("Last completed radius: " + (ring)"), true);
 				} else {
 					cmd.getSource().sendFeedback(new LiteralText("No pregeneration currently running. Run /pregen start <radius> to start."), false);
 				}
@@ -97,7 +104,7 @@ public class Commands {
 					executes(cmd -> {
 				ServerCommandSource source = cmd.getSource();
 
-				source.sendFeedback(new LiteralText("/pregen start <radius> - Pregenerate a square centered on the player that is <radius> chunks long and wide."), false);
+				source.sendFeedback(new LiteralText("/pregen start <radius> <start_at> - Pregenerate a square centered on the player that is <radius> chunks from the player in each direction and starts at <start_at> chunks away."), false);
 				source.sendFeedback(new LiteralText("/pregen stop - Stop pregeneration and displays the amount completed."), false);
 				source.sendFeedback(new LiteralText("/pregen status - Display the amount of chunks pregenerated."), false);
 				source.sendFeedback(new LiteralText("/pregen help - Display this message."), false);
