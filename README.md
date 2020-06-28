@@ -3,8 +3,6 @@
 
 Fabric Chunk Pregenerator is a fabric mod that allows you to pregenerate chunks for your server or for singleplayer while running fabric. Requires Fabric API!
 
- Modified by Linguardium to generate in (square) rings from center and allow starting from a given distance away from position
-
 # Commands
 
 `/pregen start <radius> <first>` - Pregenerates in a square that is <radius> chunks away from player in each direction starting from <first> chunks away. 
