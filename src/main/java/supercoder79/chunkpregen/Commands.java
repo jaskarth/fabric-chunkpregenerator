@@ -107,7 +107,6 @@ public class Commands {
 		int amount = total - queue.size();
 
 		if (amount % 100 == 0) {
-			System.gc();
 			source.sendFeedback(new LiteralText("Pregenerated " + (format.format(((double)(amount) / (double)(total)) * 100)) + "%"), true);
 		}
 	}
