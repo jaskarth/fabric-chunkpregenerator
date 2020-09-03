@@ -21,9 +21,8 @@
       "supercoder79.chunkpregen.ChunkPregen"
     ]
   },
-  "mixins": [
-    "chunkpregen.mixins.json"
-  ],
+
+  "accessWidener": "chunkpregen.accesswidener",
 
   "depends": {
     "fabricloader": ">=0.7.2",

@@ -1,0 +1,5 @@
+accessWidener v1 named
+
+accessible method net/minecraft/server/world/ThreadedAnvilChunkStorage getChunkHolder (J)Lnet/minecraft/server/world/ChunkHolder;
+
+accessible method net/minecraft/server/world/ServerChunkManager tick ()Z
