@@ -140,9 +140,11 @@ public final class PregenerationTask {
 
         for (int i = 0; i < count; i++) {
             long chunk = this.iterator.next();
-            if (chunk != Long.MAX_VALUE) {
-                chunks.add(chunk);
+            if (chunk == Long.MAX_VALUE) {
+                break;
             }
+
+            chunks.add(chunk);
         }
 
         return chunks;
