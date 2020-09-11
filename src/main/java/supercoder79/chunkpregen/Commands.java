@@ -13,7 +13,7 @@ import net.minecraft.util.math.ChunkPos;
 
 import java.text.DecimalFormat;
 
-public class Commands {
+public final class Commands {
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("#.00");
 	private static PregenerationTask activeTask;
 	private static PregenBar pregenBar;
@@ -94,7 +94,7 @@ public class Commands {
 					executes(cmd -> {
 				ServerCommandSource source = cmd.getSource();
 
-				source.sendFeedback(new LiteralText("/pregen start <radius> - Pregenerate a square centered on the player that is <radius> chunks long and wide."), false);
+				source.sendFeedback(new LiteralText("/pregen start <radius> - Pregenerate a square centered on the player that is <radius> * 2 chunks long and wide."), false);
 				source.sendFeedback(new LiteralText("/pregen stop - Stop pregeneration and displays the amount completed."), false);
 				source.sendFeedback(new LiteralText("/pregen status - Display the amount of chunks pregenerated."), false);
 				source.sendFeedback(new LiteralText("/pregen help - Display this message."), false);
@@ -109,10 +109,7 @@ public class Commands {
 		return new PregenerationTask.Listener() {
 			@Override
 			public void update(int ok, int error, int total) {
-				int count = ok + error;
-				if (count % 100 == 0) {
-					pregenBar.update(ok, error, total);
-				}
+				pregenBar.update(ok, error, total);
 			}
 
 			@Override
