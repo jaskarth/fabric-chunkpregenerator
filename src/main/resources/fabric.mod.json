@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "chunkpregen",
-  "version": "0.3.0",
+  "version": "0.3.2",
 
   "name": "Fabric Chunk Pregenerator",
   "description": "Pregen chunks with fabric!",
@@ -23,6 +23,10 @@
   },
 
   "accessWidener": "chunkpregen.accesswidener",
+
+  "mixins": [
+    "chunkpregen.mixins.json"
+  ],
 
   "depends": {
     "fabricloader": ">=0.7.2",
