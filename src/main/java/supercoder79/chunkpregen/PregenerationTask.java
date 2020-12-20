@@ -119,7 +119,9 @@ public final class PregenerationTask {
     }
 
     private void acceptChunkResult(long chunk, Either<Chunk, ChunkHolder.Unloaded> result) {
-        this.releaseChunk(chunk);
+        this.server.submit(() -> {
+            this.releaseChunk(chunk);
+        });
 
         if (result.left().isPresent()) {
             this.okCount.getAndIncrement();
