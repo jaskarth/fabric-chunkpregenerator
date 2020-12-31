@@ -15,13 +15,20 @@ minecraft {
 }
 
 dependencies {
+    minecraft "com.mojang:minecraft:1.16.4"
+    mappings "net.fabricmc:yarn:1.16.4+build.7:v2"
+    modImplementation "net.fabricmc:fabric-loader:0.10.8"
+            
+    //Fabric api
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.29.0+1.16"
+    
 	//to change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
+// 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+// 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+// 	modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+// 	modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
