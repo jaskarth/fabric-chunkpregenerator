@@ -5,10 +5,14 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.*;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.dimension.DimensionType;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class PregenerationTask {
@@ -30,12 +34,21 @@ public final class PregenerationTask {
     private volatile Listener listener;
     private volatile boolean stopped;
 
-    public PregenerationTask(ServerWorld world, int x, int z, int radius) {
-        this.server = world.getServer();
-        this.chunkManager = world.getChunkManager();
+    private static String dimensionType = new String("The OverWorld");
 
+    public PregenerationTask(ServerWorld world, Identifier dimension,  int x, int z, int radius) {
+        this.server = Objects.requireNonNull( world.getServer() );
+        if( dimension.equals( DimensionType.THE_NETHER_ID ) ) {
+            this.dimensionType = "The Nether";
+            this.chunkManager = world.getServer().getWorld( World.NETHER ).getChunkManager();
+        } else if( dimension.equals( DimensionType.THE_END_ID ) ){
+            this.dimensionType = "The End";
+            this.chunkManager = world.getServer().getWorld( World.END ).getChunkManager();
+        } else {
+            this.chunkManager = world.getServer().getWorld( World.OVERWORLD ).getChunkManager();
+        }
+        // iterate the chunks and save
         this.iterator = new ChunkIterator(x, z, radius);
-
         int diameter = radius * 2 + 1;
         this.totalCount = diameter * diameter;
     }
@@ -50,6 +63,10 @@ public final class PregenerationTask {
 
     public int getTotalCount() {
         return this.totalCount;
+    }
+
+    public String getDimensionType(){
+        return this.dimensionType;
     }
 
     public void run(Listener listener) {
@@ -164,7 +181,6 @@ public final class PregenerationTask {
 
     public interface Listener {
         void update(int ok, int error, int total);
-
         void complete(int error);
     }
 }

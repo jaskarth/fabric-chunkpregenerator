@@ -25,7 +25,7 @@
   "accessWidener": "chunkpregen.accesswidener",
 
   "mixins": [
-    "chunkpregen.mixins.json"
+      "chunkpregen.mixins.json"
   ],
 
   "depends": {
