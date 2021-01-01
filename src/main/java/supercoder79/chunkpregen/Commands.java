@@ -1,26 +1,22 @@
 package supercoder79.chunkpregen;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.sun.org.apache.xerces.internal.xs.StringList;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import  net.minecraft.world.dimension.DimensionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
 
+import static net.minecraft.command.argument.DimensionArgumentType.dimension;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
-import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static net.minecraft.command.CommandSource.suggestMatching;
 
 import java.text.DecimalFormat;
 
@@ -36,16 +32,19 @@ public final class Commands {
 					.requires(executor -> executor.hasPermissionLevel(2));
 
 			lab.then( literal("start")
-					.then( argument( "dimensionType" , StringArgumentType.string() ).
-							suggests( (c, b) -> suggestMatching(new String[]{"Overworld","Nether", "End" }, b ) ).
+					.then( argument( "dimensionType" , dimension() ).
 							then( argument("radius", integer( 0 ) ).
 									executes(cmd -> {
 				ServerCommandSource source = cmd.getSource();
+
+				//
+
 				if (activeTask != null) {
 					source.sendFeedback(new LiteralText("Pregen already running. Please execute '/pregen stop' to start another pregeneration."), true);
 					return Command.SINGLE_SUCCESS;
 				}
-				String dimensionType = getString(cmd, "dimensionType");
+
+				Identifier dimensionId = (Identifier)cmd.getArgument("dimensionType", Identifier.class);
 				int radius =  getInteger(cmd, "radius");
 				ChunkPos origin;
 				if (source.getEntity() == null) {
@@ -54,7 +53,7 @@ public final class Commands {
 					origin = new ChunkPos(new BlockPos(source.getPlayer().getPos()));
 				}
 
-				activeTask = new PregenerationTask( source.getWorld(), dimensionType,  origin.x, origin.z, radius);
+				activeTask = new PregenerationTask( source.getWorld(), dimensionId,  origin.x, origin.z, radius);
 				pregenBar = new PregenBar();
 
 				if (source.getEntity() instanceof ServerPlayerEntity) {

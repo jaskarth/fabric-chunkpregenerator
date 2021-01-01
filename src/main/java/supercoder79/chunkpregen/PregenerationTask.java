@@ -5,10 +5,12 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.*;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,21 +36,16 @@ public final class PregenerationTask {
 
     private static String dimensionType = new String("The OverWorld");
 
-    public PregenerationTask(ServerWorld world, String dimensionType, int x, int z, int radius) {
+    public PregenerationTask(ServerWorld world, Identifier dimension,  int x, int z, int radius) {
         this.server = Objects.requireNonNull( world.getServer() );
-        // check the world type and get its chunk manager.
-        if( dimensionType.equals( "Overworld" ) ) {
-            this.chunkManager = world.getServer().getWorld(World.OVERWORLD ).getChunkManager();
-        }
-        else if( dimensionType.equals( "Nether" ) ){
-            this.chunkManager = world.getServer().getWorld(World.NETHER ).getChunkManager();
+        if( dimension.equals( DimensionType.THE_NETHER_ID ) ) {
             this.dimensionType = "The Nether";
-
-        } else if ( dimensionType.equals( "End" ) ) {
-            this.chunkManager = world.getServer().getWorld( World.END ).getChunkManager();
+            this.chunkManager = world.getServer().getWorld( World.NETHER ).getChunkManager();
+        } else if( dimension.equals( DimensionType.THE_END_ID ) ){
             this.dimensionType = "The End";
+            this.chunkManager = world.getServer().getWorld( World.END ).getChunkManager();
         } else {
-            this.chunkManager = world.getChunkManager();
+            this.chunkManager = world.getServer().getWorld( World.OVERWORLD ).getChunkManager();
         }
         // iterate the chunks and save
         this.iterator = new ChunkIterator(x, z, radius);
