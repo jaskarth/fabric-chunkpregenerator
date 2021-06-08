@@ -9,7 +9,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class PregenerationTask {
     private static final int BATCH_SIZE = 32;
@@ -23,9 +23,9 @@ public final class PregenerationTask {
 
     private final Object queueLock = new Object();
 
-    private final AtomicInteger queuedCount = new AtomicInteger();
-    private final AtomicInteger okCount = new AtomicInteger();
-    private final AtomicInteger errorCount = new AtomicInteger();
+    private final AtomicLong queuedCount = new AtomicLong();
+    private final AtomicLong okCount = new AtomicLong();
+    private final AtomicLong errorCount = new AtomicLong();
 
     private volatile Listener listener;
     private volatile boolean stopped;
