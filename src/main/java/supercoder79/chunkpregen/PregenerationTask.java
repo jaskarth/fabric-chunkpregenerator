@@ -4,21 +4,31 @@ import com.mojang.datafixers.util.Either;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.*;
+import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.ChunkTicketType;
+import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
+import supercoder79.chunkpregen.iterator.CoarseOnionIterator;
 
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class PregenerationTask {
     private static final int BATCH_SIZE = 32;
     private static final int QUEUE_THRESHOLD = 8;
+    private static final int COARSE_CELL_SIZE = 4;
 
     private final MinecraftServer server;
     private final ServerChunkManager chunkManager;
 
-    private final ChunkIterator iterator;
+    private final Iterator<ChunkPos> iterator;
+    private final int x;
+    private final int z;
+
     private final int totalCount;
 
     private final Object queueLock = new Object();
@@ -34,7 +44,9 @@ public final class PregenerationTask {
         this.server = world.getServer();
         this.chunkManager = world.getChunkManager();
 
-        this.iterator = new ChunkIterator(x, z, radius);
+        this.iterator = new CoarseOnionIterator(radius, COARSE_CELL_SIZE);
+        this.x = x;
+        this.z = z;
 
         int diameter = radius * 2 + 1;
         this.totalCount = diameter * diameter;
@@ -140,13 +152,10 @@ public final class PregenerationTask {
     private LongList collectChunks(int count) {
         LongList chunks = new LongArrayList(count);
 
-        for (int i = 0; i < count; i++) {
-            long chunk = this.iterator.next();
-            if (chunk == Long.MAX_VALUE) {
-                break;
-            }
-
-            chunks.add(chunk);
+        Iterator<ChunkPos> iterator = this.iterator;
+        for (int i = 0; i < count && iterator.hasNext(); i++) {
+            ChunkPos chunk = iterator.next();
+            chunks.add(ChunkPos.toLong(chunk.x + this.x, chunk.z + this.z));
         }
 
         return chunks;
