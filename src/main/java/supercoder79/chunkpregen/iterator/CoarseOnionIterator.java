@@ -50,18 +50,18 @@ public final class CoarseOnionIterator extends AbstractIterator<ChunkPos> {
         );
     }
 
-    static final class CellIterator implements Iterator<ChunkPos> {
-        final int x0;
-        final int z0;
-        final int x1;
-        final int z1;
+    private static final class CellIterator implements Iterator<ChunkPos> {
+        private final int x0;
+        private final int x1;
+        private final int z1;
 
-        int x;
-        int z;
+        private int x;
+        private int z;
 
-        CellIterator(int x0, int z0, int x1, int z1) {
-            this.x0 = this.x = x0;
-            this.z0 = this.z = z0;
+        private CellIterator(int x0, int z0, int x1, int z1) {
+            this.x = x0;
+            this.z = z0;
+            this.x0 = x0;
             this.x1 = x1;
             this.z1 = z1;
         }
