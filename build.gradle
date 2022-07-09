@@ -1,5 +1,6 @@
 plugins {
-	id 'fabric-loom' version '0.8-SNAPSHOT'
+	id 'fabric-loom' version '0.12-SNAPSHOT'
+	id 'io.github.juuxel.loom-quiltflower' version '1.7.0'
 	id 'maven-publish'
 }
 
@@ -14,8 +15,8 @@ repositories {
 	maven { url = "https://maven.gegy.dev" }
 }
 
-minecraft {
-	accessWidener = file("src/main/resources/chunkpregen.accesswidener")
+loom {
+	accessWidenerPath = file("src/main/resources/chunkpregen.accesswidener")
 }
 
 dependencies {
@@ -27,9 +28,9 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	modRuntime ("supercoder79:databreaker:0.2.7") {
-		exclude module : "fabric-loader"
-	}
+//	modRuntime ("supercoder79:databreaker:0.2.9") {
+//		exclude module : "fabric-loader"
+//	}
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.

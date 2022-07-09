@@ -3,8 +3,8 @@ package supercoder79.chunkpregen;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.text.DecimalFormat;
@@ -15,7 +15,7 @@ public final class PregenBar implements AutoCloseable {
     private final ServerBossBar bar;
 
     public PregenBar() {
-        this.bar = new ServerBossBar(new LiteralText("Pregenerating"), BossBar.Color.BLUE, BossBar.Style.PROGRESS);
+        this.bar = new ServerBossBar(Text.literal("Pregenerating"), BossBar.Color.BLUE, BossBar.Style.PROGRESS);
         this.bar.setDragonMusic(false);
         this.bar.setThickenFog(false);
         this.bar.setDarkenSky(false);
@@ -26,11 +26,11 @@ public final class PregenBar implements AutoCloseable {
 
         float percent = (float) count / total;
 
-        MutableText title = new LiteralText("Pregenerating " + total + " chunks! ")
-                .append(new LiteralText(PERCENT_FORMAT.format(percent * 100.0F) + "%").formatted(Formatting.AQUA));
+        MutableText title = Text.literal("Pregenerating " + total + " chunks! ")
+                .append(Text.literal(PERCENT_FORMAT.format(percent * 100.0F) + "%").formatted(Formatting.AQUA));
 
         if (error > 0) {
-            title = title.append(new LiteralText(" (" + error + " errors!)").formatted(Formatting.RED));
+            title = title.append(Text.literal(" (" + error + " errors!)").formatted(Formatting.RED));
         }
 
         this.bar.setName(title);

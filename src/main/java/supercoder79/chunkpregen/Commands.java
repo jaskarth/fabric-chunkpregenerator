@@ -3,15 +3,16 @@ package supercoder79.chunkpregen;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
 import java.text.DecimalFormat;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class Commands {
 	private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("#.00");
@@ -19,9 +20,30 @@ public final class Commands {
 	private static PregenBar pregenBar;
 
 	public static void init() {
-		CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 			LiteralArgumentBuilder<ServerCommandSource> lab = CommandManager.literal("pregen")
 					.requires(executor -> executor.hasPermissionLevel(2));
+
+			AtomicLong atotal = new AtomicLong();
+			AtomicLong atime = new AtomicLong();
+
+			lab.then(CommandManager.literal("debug").executes(cmd -> {
+				for (int x = -100; x <= 100; x++) {
+					for (int z = -100; z <= 100; z++) {
+						long start = System.nanoTime();
+						cmd.getSource().getWorld().getChunk(x, z);
+						long diff = System.nanoTime() - start;
+
+						atotal.addAndGet(1);
+						atime.addAndGet(diff);
+
+						System.out.println("Average: " + ((atime.get() / ((double) atotal.get())) / (1000.0) / 1000.0));
+					}
+				}
+
+				return 1;
+			}));
+
 
 			lab.then(CommandManager.literal("start")
 					.then(CommandManager.argument("radius", IntegerArgumentType.integer(0))
@@ -29,7 +51,7 @@ public final class Commands {
 
 				ServerCommandSource source = cmd.getSource();
 				if (activeTask != null) {
-					source.sendFeedback(new LiteralText("Pregen already running. Please execute '/pregen stop' to start another pregeneration."), true);
+					source.sendFeedback(Text.literal("Pregen already running. Please execute '/pregen stop' to start another pregeneration."), true);
 					return Command.SINGLE_SUCCESS;
 				}
 
@@ -49,7 +71,7 @@ public final class Commands {
 					pregenBar.addPlayer(source.getPlayer());
 				}
 
-				source.sendFeedback(new LiteralText("Pregenerating " + activeTask.getTotalCount() + " chunks..."), true);
+				source.sendFeedback(Text.literal("Pregenerating " + activeTask.getTotalCount() + " chunks..."), true);
 
 				activeTask.run(createPregenListener(source));
 
@@ -66,7 +88,7 @@ public final class Commands {
 
 					double percent = (double) count / total * 100.0;
 					String message = "Pregen stopped! " + count + " out of " + total + " chunks generated. (" + percent + "%)";
-					cmd.getSource().sendFeedback(new LiteralText(message), true);
+					cmd.getSource().sendFeedback(Text.literal(message), true);
 
 					pregenBar.close();
 					pregenBar = null;
@@ -83,9 +105,9 @@ public final class Commands {
 
 					double percent = (double) count / total * 100.0;
 					String message = "Pregen status: " + count + " out of " + total + " chunks generated. (" + percent + "%)";
-					cmd.getSource().sendFeedback(new LiteralText(message), true);
+					cmd.getSource().sendFeedback(Text.literal(message), true);
 				} else {
-					cmd.getSource().sendFeedback(new LiteralText("No pregeneration currently running. Run /pregen start <radius> to start."), false);
+					cmd.getSource().sendFeedback(Text.literal("No pregeneration currently running. Run /pregen start <radius> to start."), false);
 				}
 				return Command.SINGLE_SUCCESS;
 			}));
@@ -94,10 +116,10 @@ public final class Commands {
 					executes(cmd -> {
 				ServerCommandSource source = cmd.getSource();
 
-				source.sendFeedback(new LiteralText("/pregen start <radius> - Pregenerate a square centered on the player that is <radius> * 2 chunks long and wide."), false);
-				source.sendFeedback(new LiteralText("/pregen stop - Stop pregeneration and displays the amount completed."), false);
-				source.sendFeedback(new LiteralText("/pregen status - Display the amount of chunks pregenerated."), false);
-				source.sendFeedback(new LiteralText("/pregen help - Display this message."), false);
+				source.sendFeedback(Text.literal("/pregen start <radius> - Pregenerate a square centered on the player that is <radius> * 2 chunks long and wide."), false);
+				source.sendFeedback(Text.literal("/pregen stop - Stop pregeneration and displays the amount completed."), false);
+				source.sendFeedback(Text.literal("/pregen status - Display the amount of chunks pregenerated."), false);
+				source.sendFeedback(Text.literal("/pregen help - Display this message."), false);
 				return 1;
 			}));
 
@@ -114,10 +136,10 @@ public final class Commands {
 
 			@Override
 			public void complete(int error) {
-				source.sendFeedback(new LiteralText("Pregeneration Done!"), true);
+				source.sendFeedback(Text.literal("Pregeneration Done!"), true);
 
 				if (error > 0) {
-					source.sendFeedback(new LiteralText("Pregeneration experienced " + error + " errors! Check the log for more information"), true);
+					source.sendFeedback(Text.literal("Pregeneration experienced " + error + " errors! Check the log for more information"), true);
 				}
 
 				pregenBar.close();
