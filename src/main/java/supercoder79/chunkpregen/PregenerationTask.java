@@ -124,8 +124,13 @@ public final class PregenerationTask {
                 continue;
             }
 
-            holder.getChunkAt(ChunkStatus.FULL, tacs).thenAccept(result -> {
-                this.acceptChunkResult(chunk, result);
+            holder.getChunkAt(ChunkStatus.FULL, tacs).whenComplete((result, throwable) -> {
+                if (throwable == null) {
+                    this.acceptChunkResult(chunk, result);
+                } else {
+                    ChunkPregen.LOGGER.warn("Encountered unexpected error while generating chunk", throwable);
+                    this.acceptChunkResult(chunk, ChunkHolder.UNLOADED_CHUNK);
+                }
             });
         }
     }
