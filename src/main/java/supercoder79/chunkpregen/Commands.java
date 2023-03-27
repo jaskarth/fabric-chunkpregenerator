@@ -27,22 +27,22 @@ public final class Commands {
 			AtomicLong atotal = new AtomicLong();
 			AtomicLong atime = new AtomicLong();
 
-			lab.then(CommandManager.literal("debug").executes(cmd -> {
-				for (int x = -100; x <= 100; x++) {
-					for (int z = -100; z <= 100; z++) {
-						long start = System.nanoTime();
-						cmd.getSource().getWorld().getChunk(x, z);
-						long diff = System.nanoTime() - start;
-
-						atotal.addAndGet(1);
-						atime.addAndGet(diff);
-
-						System.out.println("Average: " + ((atime.get() / ((double) atotal.get())) / (1000.0) / 1000.0));
-					}
-				}
-
-				return 1;
-			}));
+//			lab.then(CommandManager.literal("debug").executes(cmd -> {
+//				for (int x = -100; x <= 100; x++) {
+//					for (int z = -100; z <= 100; z++) {
+//						long start = System.nanoTime();
+//						cmd.getSource().getWorld().getChunk(x, z);
+//						long diff = System.nanoTime() - start;
+//
+//						atotal.addAndGet(1);
+//						atime.addAndGet(diff);
+//
+//						System.out.println("Average: " + ((atime.get() / ((double) atotal.get())) / (1000.0) / 1000.0));
+//					}
+//				}
+//
+//				return 1;
+//			}));
 
 
 			lab.then(CommandManager.literal("start")
@@ -61,17 +61,19 @@ public final class Commands {
 				if (source.getEntity() == null) {
 					origin = new ChunkPos(0, 0);
 				} else {
-					origin = new ChunkPos(new BlockPos(source.getPlayer().getPos()));
+					origin = new ChunkPos(BlockPos.ofFloored(source.getPlayer().getPos()));
 				}
 
 				activeTask = new PregenerationTask(source.getWorld(), origin.x, origin.z, radius);
+				int diameter = radius * 2 + 1;
 				pregenBar = new PregenBar();
 
 				if (source.getEntity() instanceof ServerPlayerEntity) {
 					pregenBar.addPlayer(source.getPlayer());
 				}
 
-				source.sendFeedback(Text.literal("Pregenerating " + activeTask.getTotalCount() + " chunks..."), true);
+				source.sendFeedback(Text.literal("Pregenerating " + activeTask.getTotalCount() + " chunks, in an area of " + diameter + "x" + diameter
+						+ " chunks (" + (diameter * 16) + "x" + (diameter * 16) + " blocks)."), true);
 
 				activeTask.run(createPregenListener(source));
 
@@ -116,10 +118,12 @@ public final class Commands {
 					executes(cmd -> {
 				ServerCommandSource source = cmd.getSource();
 
-				source.sendFeedback(Text.literal("/pregen start <radius> - Pregenerate a square centered on the player that is <radius> * 2 chunks long and wide."), false);
-				source.sendFeedback(Text.literal("/pregen stop - Stop pregeneration and displays the amount completed."), false);
-				source.sendFeedback(Text.literal("/pregen status - Display the amount of chunks pregenerated."), false);
-				source.sendFeedback(Text.literal("/pregen help - Display this message."), false);
+				source.sendFeedback(Text.literal("§2/pregen start <radius> - Pregenerate a square centered on the player that is <radius> * 2 chunks long and wide."), false);
+				source.sendFeedback(Text.literal("§2/pregen stop - Stop pregeneration and displays the amount completed."), false);
+				source.sendFeedback(Text.literal("§2/pregen status - Display the amount of chunks pregenerated."), false);
+				source.sendFeedback(Text.literal("§2/pregen help - Display this message."), false);
+				source.sendFeedback(Text.literal("General tips: When running from a player, the center position will be the chunk you're standing on."), false);
+				source.sendFeedback(Text.literal("If running from a server console, the center position will be 0, 0. You can run pregen for different dimensions using /execute in <dimension> pregen start <radius>"), false);
 				return 1;
 			}));
 
