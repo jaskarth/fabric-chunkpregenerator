@@ -6,6 +6,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -22,7 +23,15 @@ public final class Commands {
 	public static void init() {
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 			LiteralArgumentBuilder<ServerCommandSource> lab = CommandManager.literal("pregen")
-					.requires(executor -> executor.hasPermissionLevel(2));
+					.requires(executor -> {
+						// Remove requirement for cheats in singleplayer
+						if (executor.getServer().isSingleplayer()) {
+							return true;
+						}
+
+						// Needs to be opped in singplayer
+						return executor.hasPermissionLevel(2);
+					});
 
 			AtomicLong atotal = new AtomicLong();
 			AtomicLong atime = new AtomicLong();
