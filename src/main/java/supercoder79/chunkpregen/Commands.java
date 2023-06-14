@@ -60,7 +60,7 @@ public final class Commands {
 
 				ServerCommandSource source = cmd.getSource();
 				if (activeTask != null) {
-					source.sendFeedback(Text.literal("Pregen already running. Please execute '/pregen stop' to start another pregeneration."), true);
+					source.sendFeedback(() -> Text.literal("Pregen already running. Please execute '/pregen stop' to start another pregeneration."), true);
 					return Command.SINGLE_SUCCESS;
 				}
 
@@ -81,7 +81,7 @@ public final class Commands {
 					pregenBar.addPlayer(source.getPlayer());
 				}
 
-				source.sendFeedback(Text.literal("Pregenerating " + activeTask.getTotalCount() + " chunks, in an area of " + diameter + "x" + diameter
+				source.sendFeedback(() -> Text.literal("Pregenerating " + activeTask.getTotalCount() + " chunks, in an area of " + diameter + "x" + diameter
 						+ " chunks (" + (diameter * 16) + "x" + (diameter * 16) + " blocks)."), true);
 
 				activeTask.run(createPregenListener(source));
@@ -99,7 +99,7 @@ public final class Commands {
 
 					double percent = (double) count / total * 100.0;
 					String message = "Pregen stopped! " + count + " out of " + total + " chunks generated. (" + percent + "%)";
-					cmd.getSource().sendFeedback(Text.literal(message), true);
+					cmd.getSource().sendFeedback(() -> Text.literal(message), true);
 
 					pregenBar.close();
 					pregenBar = null;
@@ -116,9 +116,9 @@ public final class Commands {
 
 					double percent = (double) count / total * 100.0;
 					String message = "Pregen status: " + count + " out of " + total + " chunks generated. (" + percent + "%)";
-					cmd.getSource().sendFeedback(Text.literal(message), true);
+					cmd.getSource().sendFeedback(() -> Text.literal(message), true);
 				} else {
-					cmd.getSource().sendFeedback(Text.literal("No pregeneration currently running. Run /pregen start <radius> to start."), false);
+					cmd.getSource().sendFeedback(() -> Text.literal("No pregeneration currently running. Run /pregen start <radius> to start."), false);
 				}
 				return Command.SINGLE_SUCCESS;
 			}));
@@ -127,12 +127,12 @@ public final class Commands {
 					executes(cmd -> {
 				ServerCommandSource source = cmd.getSource();
 
-				source.sendFeedback(Text.literal("§2/pregen start <radius> - Pregenerate a square centered on the player that is <radius> * 2 chunks long and wide."), false);
-				source.sendFeedback(Text.literal("§2/pregen stop - Stop pregeneration and displays the amount completed."), false);
-				source.sendFeedback(Text.literal("§2/pregen status - Display the amount of chunks pregenerated."), false);
-				source.sendFeedback(Text.literal("§2/pregen help - Display this message."), false);
-				source.sendFeedback(Text.literal("General tips: When running from a player, the center position will be the chunk you're standing on."), false);
-				source.sendFeedback(Text.literal("If running from a server console, the center position will be 0, 0. You can run pregen for different dimensions using /execute in <dimension> pregen start <radius>"), false);
+				source.sendFeedback(() -> Text.literal("§2/pregen start <radius> - Pregenerate a square centered on the player that is <radius> * 2 chunks long and wide."), false);
+				source.sendFeedback(() -> Text.literal("§2/pregen stop - Stop pregeneration and displays the amount completed."), false);
+				source.sendFeedback(() -> Text.literal("§2/pregen status - Display the amount of chunks pregenerated."), false);
+				source.sendFeedback(() -> Text.literal("§2/pregen help - Display this message."), false);
+				source.sendFeedback(() -> Text.literal("General tips: When running from a player, the center position will be the chunk you're standing on."), false);
+				source.sendFeedback(() -> Text.literal("If running from a server console, the center position will be 0, 0. You can run pregen for different dimensions using /execute in <dimension> pregen start <radius>"), false);
 				return 1;
 			}));
 
@@ -149,10 +149,10 @@ public final class Commands {
 
 			@Override
 			public void complete(int error) {
-				source.sendFeedback(Text.literal("Pregeneration Done!"), true);
+				source.sendFeedback(() -> Text.literal("Pregeneration Done!"), true);
 
 				if (error > 0) {
-					source.sendFeedback(Text.literal("Pregeneration experienced " + error + " errors! Check the log for more information"), true);
+					source.sendFeedback(() -> Text.literal("Pregeneration experienced " + error + " errors! Check the log for more information"), true);
 				}
 
 				pregenBar.close();
