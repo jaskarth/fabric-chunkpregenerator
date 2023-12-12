@@ -14,6 +14,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import supercoder79.chunkpregen.iterator.CoarseOnionIterator;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,6 +41,8 @@ public final class PregenerationTask {
 
     private volatile Listener listener;
     private volatile boolean stopped;
+
+    public static final ChunkTicketType<ChunkPos> FABRIC_PREGEN_FORCED = ChunkTicketType.create("fabric_pregen_forced", Comparator.comparingLong(ChunkPos::toLong));
 
     public PregenerationTask(ServerWorld world, int x, int z, int radius) {
         this.server = world.getServer();
@@ -172,12 +175,12 @@ public final class PregenerationTask {
 
     private void acquireChunk(long chunk) {
         ChunkPos pos = new ChunkPos(chunk);
-        this.chunkManager.addTicket(ChunkTicketType.FORCED, pos, 0, pos);
+        this.chunkManager.addTicket(FABRIC_PREGEN_FORCED, pos, 0, pos);
     }
 
     private void releaseChunk(long chunk) {
         ChunkPos pos = new ChunkPos(chunk);
-        this.chunkManager.removeTicket(ChunkTicketType.FORCED, pos, 0, pos);
+        this.chunkManager.removeTicket(FABRIC_PREGEN_FORCED, pos, 0, pos);
     }
 
     public interface Listener {
