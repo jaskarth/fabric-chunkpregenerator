@@ -163,10 +163,11 @@ public final class PregenerationTask {
         LongList chunks = new LongArrayList(count);
 
         Iterator<ChunkPos> iterator = this.iterator;
-        for (int i = 0; i < count && iterator.hasNext(); i++) {
+        for (int i = 0; i < count && iterator.hasNext();) {
             ChunkPos chunk = iterator.next();
             if (Math.abs(chunk.x) <= this.radius && Math.abs(chunk.z) <= this.radius) {
                 chunks.add(ChunkPos.toLong(chunk.x + this.x, chunk.z + this.z));
+                i++;
             }
         }
 
