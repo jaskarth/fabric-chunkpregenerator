@@ -94,7 +94,7 @@ public final class Commands {
 				if (activeTask != null) {
 					activeTask.stop();
 
-					int count = activeTask.getOkCount() + activeTask.getErrorCount();
+					int count = activeTask.getOkCount() + activeTask.getErrorCount() + activeTask.getSkippedCount();
 					int total = activeTask.getTotalCount();
 
 					double percent = (double) count / total * 100.0;
@@ -111,7 +111,7 @@ public final class Commands {
 			lab.then(CommandManager.literal("status")
 					.executes(cmd -> {
 				if (activeTask != null) {
-					int count = activeTask.getOkCount() + activeTask.getErrorCount();
+					int count = activeTask.getOkCount() + activeTask.getErrorCount() + activeTask.getSkippedCount();
 					int total = activeTask.getTotalCount();
 
 					double percent = (double) count / total * 100.0;
@@ -143,8 +143,8 @@ public final class Commands {
 	private static PregenerationTask.Listener createPregenListener(ServerCommandSource source) {
 		return new PregenerationTask.Listener() {
 			@Override
-			public void update(int ok, int error, int total) {
-				pregenBar.update(ok, error, total);
+			public void update(int ok, int error, int skipped, int total) {
+				pregenBar.update(ok, error, skipped, total);
 			}
 
 			@Override

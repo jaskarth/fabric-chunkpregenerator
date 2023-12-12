@@ -3,6 +3,10 @@ package supercoder79.chunkpregen;
 import com.mojang.datafixers.util.Either;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.scanner.NbtScanQuery;
+import net.minecraft.nbt.scanner.SelectiveNbtCollector;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ChunkTicketType;
@@ -16,6 +20,7 @@ import supercoder79.chunkpregen.iterator.CoarseOnionIterator;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class PregenerationTask {
@@ -38,6 +43,7 @@ public final class PregenerationTask {
     private final AtomicInteger queuedCount = new AtomicInteger();
     private final AtomicInteger okCount = new AtomicInteger();
     private final AtomicInteger errorCount = new AtomicInteger();
+    private final AtomicInteger skippedCount = new AtomicInteger();
 
     private volatile Listener listener;
     private volatile boolean stopped;
@@ -65,6 +71,10 @@ public final class PregenerationTask {
         return this.errorCount.get();
     }
 
+    public int getSkippedCount() {
+        return this.skippedCount.get();
+    }
+
     public int getTotalCount() {
         return this.totalCount;
     }
@@ -75,7 +85,8 @@ public final class PregenerationTask {
         }
 
         this.listener = listener;
-        this.tryEnqueueTasks();
+
+        this.server.submit(() -> CompletableFuture.runAsync(this::tryEnqueueTasks));
     }
 
     public void stop() {
@@ -151,7 +162,7 @@ public final class PregenerationTask {
             this.errorCount.getAndIncrement();
         }
 
-        this.listener.update(this.okCount.get(), this.errorCount.get(), this.totalCount);
+        this.listener.update(this.okCount.get(), this.errorCount.get(), this.skippedCount.get(), this.totalCount);
 
         int queuedCount = this.queuedCount.decrementAndGet();
         if (queuedCount <= QUEUE_THRESHOLD) {
@@ -164,9 +175,15 @@ public final class PregenerationTask {
 
         Iterator<ChunkPos> iterator = this.iterator;
         for (int i = 0; i < count && iterator.hasNext();) {
-            ChunkPos chunk = iterator.next();
-            if (Math.abs(chunk.x) <= this.radius && Math.abs(chunk.z) <= this.radius) {
-                chunks.add(ChunkPos.toLong(chunk.x + this.x, chunk.z + this.z));
+            ChunkPos chunkPosInLocalSpace = iterator.next();
+            if (Math.abs(chunkPosInLocalSpace.x) <= this.radius && Math.abs(chunkPosInLocalSpace.z) <= this.radius) {
+                if (isChunkFullyGenerated(chunkPosInLocalSpace)) {
+                    this.skippedCount.incrementAndGet();
+                    this.listener.update(this.okCount.get(), this.errorCount.get(), this.skippedCount.get(), this.totalCount);
+                    continue;
+                }
+
+                chunks.add(ChunkPos.toLong(chunkPosInLocalSpace.x + this.x, chunkPosInLocalSpace.z + this.z));
                 i++;
             }
         }
@@ -184,8 +201,20 @@ public final class PregenerationTask {
         this.chunkManager.removeTicket(FABRIC_PREGEN_FORCED, pos, 0, pos);
     }
 
+    private boolean isChunkFullyGenerated(ChunkPos chunkPosInLocalSpace) {
+        ChunkPos chunkPosInWorldSpace = new ChunkPos(chunkPosInLocalSpace.x + this.x, chunkPosInLocalSpace.z + this.z);
+        SelectiveNbtCollector nbtCollector = new SelectiveNbtCollector(new NbtScanQuery(NbtString.TYPE, "Status"));
+        this.chunkManager.getChunkIoWorker().scanChunk(chunkPosInWorldSpace, nbtCollector).join();
+
+        if (nbtCollector.getRoot() instanceof NbtCompound nbtCompound) {
+            return nbtCompound.getString("Status").equals("minecraft:full");
+        }
+
+        return false;
+    }
+
     public interface Listener {
-        void update(int ok, int error, int total);
+        void update(int ok, int error, int skipped, int total);
 
         void complete(int error);
     }
