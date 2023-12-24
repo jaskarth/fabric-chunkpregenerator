@@ -86,7 +86,8 @@ public final class PregenerationTask {
 
         this.listener = listener;
 
-        this.server.submit(() -> CompletableFuture.runAsync(this::tryEnqueueTasks));
+        // Off thread chunk scanning to skip already generated chunks
+        CompletableFuture.runAsync(this::tryEnqueueTasks);
     }
 
     public void stop() {
@@ -115,6 +116,8 @@ public final class PregenerationTask {
             }
 
             this.queuedCount.getAndAdd(chunks.size());
+
+            // Keep on server thread as chunk acquiring and releasing (tickets) is not thread safe.
             this.server.submit(() -> this.enqueueChunks(chunks));
         }
     }
@@ -152,9 +155,7 @@ public final class PregenerationTask {
     }
 
     private void acceptChunkResult(long chunk, Either<Chunk, ChunkHolder.Unloaded> result) {
-        this.server.submit(() -> {
-            this.releaseChunk(chunk);
-        });
+        this.server.submit(() -> this.releaseChunk(chunk));
 
         if (result.left().isPresent()) {
             this.okCount.getAndIncrement();
