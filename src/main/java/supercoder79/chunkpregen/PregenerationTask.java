@@ -176,16 +176,14 @@ public final class PregenerationTask {
         Iterator<ChunkPos> iterator = this.iterator;
         for (int i = 0; i < count && iterator.hasNext();) {
             ChunkPos chunkPosInLocalSpace = iterator.next();
-            if (Math.abs(chunkPosInLocalSpace.x) <= this.radius && Math.abs(chunkPosInLocalSpace.z) <= this.radius) {
-                if (isChunkFullyGenerated(chunkPosInLocalSpace)) {
-                    this.skippedCount.incrementAndGet();
-                    this.listener.update(this.okCount.get(), this.errorCount.get(), this.skippedCount.get(), this.totalCount);
-                    continue;
-                }
-
-                chunks.add(ChunkPos.toLong(chunkPosInLocalSpace.x + this.x, chunkPosInLocalSpace.z + this.z));
-                i++;
+            if (isChunkFullyGenerated(chunkPosInLocalSpace)) {
+                this.skippedCount.incrementAndGet();
+                this.listener.update(this.okCount.get(), this.errorCount.get(), this.skippedCount.get(), this.totalCount);
+                continue;
             }
+
+            chunks.add(ChunkPos.toLong(chunkPosInLocalSpace.x + this.x, chunkPosInLocalSpace.z + this.z));
+            i++;
         }
 
         return chunks;
