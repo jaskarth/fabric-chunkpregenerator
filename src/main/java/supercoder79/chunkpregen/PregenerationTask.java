@@ -13,6 +13,7 @@ import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -87,7 +88,7 @@ public final class PregenerationTask {
         this.listener = listener;
 
         // Off thread chunk scanning to skip already generated chunks
-        CompletableFuture.runAsync(this::tryEnqueueTasks);
+        CompletableFuture.runAsync(this::tryEnqueueTasks, Util.getMainWorkerExecutor());
     }
 
     public void stop() {
