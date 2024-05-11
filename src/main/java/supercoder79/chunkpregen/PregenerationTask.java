@@ -9,6 +9,7 @@ import net.minecraft.nbt.scanner.NbtScanQuery;
 import net.minecraft.nbt.scanner.SelectiveNbtCollector;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.ChunkTaskPrioritySystem;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
@@ -18,6 +19,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkStatus;
 import supercoder79.chunkpregen.iterator.CoarseOnionIterator;
+import supercoder79.chunkpregen.mixin.ThreadedAnvilChunkStorageAccessor;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -31,6 +33,7 @@ public final class PregenerationTask {
 
     private final MinecraftServer server;
     private final ServerChunkManager chunkManager;
+    private final ServerWorld serverLevel;
 
     private final Iterator<ChunkPos> iterator;
     private final int x;
@@ -54,6 +57,7 @@ public final class PregenerationTask {
     public PregenerationTask(ServerWorld world, int x, int z, int radius) {
         this.server = world.getServer();
         this.chunkManager = world.getChunkManager();
+        this.serverLevel = world;
 
         this.iterator = new CoarseOnionIterator(radius, COARSE_CELL_SIZE);
         this.x = x;
@@ -144,14 +148,14 @@ public final class PregenerationTask {
                 continue;
             }
 
-            holder.getChunkAt(ChunkStatus.FULL, tacs).whenComplete((result, throwable) -> {
+            holder.getChunkAt(ChunkStatus.FULL, tacs).whenCompleteAsync((result, throwable) -> {
                 if (throwable == null) {
                     this.acceptChunkResult(chunk, result);
                 } else {
                     ChunkPregen.LOGGER.warn("Encountered unexpected error while generating chunk", throwable);
                     this.acceptChunkResult(chunk, ChunkHolder.UNLOADED_CHUNK);
                 }
-            });
+            }, runnable -> ((ThreadedAnvilChunkStorageAccessor)tacs).getMainExecutor().send(ChunkTaskPrioritySystem.createMessage(holder, runnable)));
         }
     }
 

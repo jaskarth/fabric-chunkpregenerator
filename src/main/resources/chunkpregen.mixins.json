@@ -3,6 +3,9 @@
   "package": "supercoder79.chunkpregen.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "SerializingRegionBasedStorageAccessor",
+    "ThreadedAnvilChunkStorageAccessor",
+    "ThreadedAnvilChunkStorageMixin"
   ],
   "client": [
   ],
