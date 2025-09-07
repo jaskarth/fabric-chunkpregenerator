@@ -1,4 +1,4 @@
-package supercoder79.chunkpregen.iterator;
+package com.jaskarth.chunkpregen.iterator;
 
 import com.google.common.collect.AbstractIterator;
 import net.minecraft.util.math.ChunkPos;

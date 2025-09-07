@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "supercoder79.chunkpregen.mixin",
+  "package": "com.jaskarth.chunkpregen.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "SerializingRegionBasedStorageAccessor",

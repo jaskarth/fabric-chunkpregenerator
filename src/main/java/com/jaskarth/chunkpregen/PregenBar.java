@@ -1,4 +1,4 @@
-package supercoder79.chunkpregen;
+package com.jaskarth.chunkpregen;
 
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;

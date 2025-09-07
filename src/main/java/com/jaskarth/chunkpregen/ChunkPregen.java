@@ -1,4 +1,4 @@
-package supercoder79.chunkpregen;
+package com.jaskarth.chunkpregen;
 
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.math.ChunkPos;
@@ -8,7 +8,7 @@ import net.minecraft.world.poi.PointOfInterestSet;
 import net.minecraft.world.poi.PointOfInterestStorage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import supercoder79.chunkpregen.mixin.SerializingRegionBasedStorageAccessor;
+import com.jaskarth.chunkpregen.mixin.SerializingRegionBasedStorageAccessor;
 
 public final class ChunkPregen implements ModInitializer {
 	public static final Logger LOGGER = LogManager.getLogger(ChunkPregen.class);
@@ -25,6 +25,10 @@ public final class ChunkPregen implements ModInitializer {
 	 * so that chunk that are fully unloaded now gets the POI removed from the POI cached storage map.
 	 */
 	public static void onChunkUnload(PointOfInterestStorage pointOfInterestStorage, Chunk chunk) {
+		if (chunk == null) {
+			return;
+		}
+
 		ChunkPos chunkPos = chunk.getPos();
 		pointOfInterestStorage.saveChunk(chunkPos); // Make sure all POI in chunk are saved to disk first.
 

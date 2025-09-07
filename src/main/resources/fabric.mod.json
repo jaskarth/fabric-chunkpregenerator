@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "id": "chunkpregen",
-  "version": "0.3.3",
+  "version": "0.3.8",
 
   "name": "Fabric Chunk Pregenerator",
   "description": "Pregen chunks with fabric!",
   "authors": [
-    "SuperCoder79"
+    "jaskarth"
   ],
   "contact": {
     "sources": ""
@@ -18,7 +18,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "supercoder79.chunkpregen.ChunkPregen"
+      "com.jaskarth.chunkpregen.ChunkPregen"
     ]
   },
 
